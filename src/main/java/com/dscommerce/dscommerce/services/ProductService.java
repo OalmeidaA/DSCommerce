@@ -11,6 +11,8 @@ import com.dscommerce.dscommerce.entities.Product;
 import com.dscommerce.dscommerce.repositories.ProductRepository;
 import com.dscommerce.dscommerce.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class ProductService {
 	
@@ -41,10 +43,16 @@ public class ProductService {
 	@Transactional
 	public ProductDTO update(Long id, ProductDTO dto) {
 		Product entity = repository.getReferenceById(id);
-		copyDtoToEntity(dto, entity);;
-		repository.save(entity);
-		ProductDTO updateEntity = new ProductDTO(entity);
-		return updateEntity;
+		
+		try {
+			copyDtoToEntity(dto, entity);;
+			repository.save(entity);
+			ProductDTO updateEntity = new ProductDTO(entity);
+			return updateEntity;
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id not Found"); 
+		}
+	
 	}
 	
 	@Transactional
